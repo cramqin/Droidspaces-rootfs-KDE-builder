@@ -52,8 +52,13 @@ on:
           - 'socket'
           - 'tcp'
           - 'none'
+      timezone:
+        description: 'Timezone (e.g. Asia/Manila, UTC, America/New_York, Europe/London, Asia/Tokyo)'
+        required: false
+        type: string
+        default: 'Asia/Manila'
       enable_zh_tz:
-        description: 'Use Chinese language and change timezone'
+        description: 'Use Chinese language (zh_CN.UTF-8)'
         required: true
         type: boolean
         default: false
@@ -316,6 +321,7 @@ jobs:
             -K "${{ inputs.build_KDE }}" \
             -L "${{ inputs.build_KDE_plus }}" \
             -P "${{ needs.setup.outputs.pulseaudio_effective }}" \
+            -z "${{ inputs.timezone }}" \
             -g "${{ inputs.enable_zh_tz }}" \
             -a "${{ inputs.enable_binfmt }}" \
             -b "${{ inputs.enable_yj }}" \

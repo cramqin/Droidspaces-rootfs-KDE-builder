@@ -18,6 +18,7 @@ ARG ENABLE_anland_kde_ARG
 ARG ENABLE_8gen2_wayland_ARG
 ARG ENABLE_nosnap_ARG
 ARG ENABLE_systemd257_ARG
+ARG TIMEZONE_ARG
 ARG USERNAME
 ######################################################
 
@@ -165,11 +166,23 @@ RUN update-alternatives --set iptables /usr/sbin/iptables-legacy && \
     update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 
 RUN sed -i '/en_US.UTF-8/s/^# //' /etc/locale.gen && \
-    if [ "$ENABLE_zh_tz_ARG" = "true" ]; then \
+    if [ -n "$TIMEZONE_ARG" ] && [ -f "/usr/share/zoneinfo/$TIMEZONE_ARG" ]; then \
+        export DEBIAN_FRONTEND=noninteractive && \
+        ln -sf "/usr/share/zoneinfo/$TIMEZONE_ARG" /etc/localtime && \
+        echo "$TIMEZONE_ARG" > /etc/timezone && \
+        dpkg-reconfigure -f noninteractive tzdata; \
+    elif [ "$ENABLE_zh_tz_ARG" = "true" ]; then \
         export DEBIAN_FRONTEND=noninteractive && \
         ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
         echo "Asia/Shanghai" > /etc/timezone && \
-        dpkg-reconfigure -f noninteractive tzdata && \
+        dpkg-reconfigure -f noninteractive tzdata; \
+    else \
+        export DEBIAN_FRONTEND=noninteractive && \
+        ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
+        echo "UTC" > /etc/timezone && \
+        dpkg-reconfigure -f noninteractive tzdata; \
+    fi && \
+    if [ "$ENABLE_zh_tz_ARG" = "true" ]; then \
         sed -i '/zh_CN.UTF-8/s/^# //' /etc/locale.gen && \
         locale-gen && \
         update-locale LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8; \
