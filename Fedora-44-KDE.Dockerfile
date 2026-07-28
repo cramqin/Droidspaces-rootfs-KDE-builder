@@ -27,11 +27,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 COPY scripts/install-usb-manager.sh /usr/local/sbin/install-droidspaces-usb-manager
 COPY scripts/systemd257.sh /usr/local/sbin/systemd257
 
-# 加速下载 & 排除 glibc
+# 加速下载
 RUN echo "max_parallel_downloads=10" >> /etc/dnf/dnf.conf && \
     echo "fastestmirror=True" >> /etc/dnf/dnf.conf && \
-    echo "defaultyes=True" >> /etc/dnf/dnf.conf && \
-    echo "exclude=glibc*" >> /etc/dnf/dnf.conf
+    echo "defaultyes=True" >> /etc/dnf/dnf.conf
 
 # 复制本仓库内预编译的 anland_kde rpm 包
 COPY anland-build/Fedora44/*.rpm /tmp/anland-build/Fedora44/
@@ -121,6 +120,7 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     echo 'exec /usr/bin/chromium --no-sandbox --test-type --password-store=basic "$@"' >> /usr/local/bin/chromium && \
     chmod +x /usr/local/bin/chromium && \
     dnf upgrade -y && \
+    echo "exclude=glibc glibc-common" >> /etc/dnf/dnf.conf && \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
@@ -130,7 +130,7 @@ RUN if [ "$ENABLE_anland_kde_ARG" = "true" ] && ([ "$BUILD_KDE" = "min" ] || [ "
         echo "--> [开启] 正在安装预编译的 kwin rpm 包..." && \
         dnf install -y /tmp/anland-build/Fedora44/*.rpm && \
         echo "--> [开启] 设置预编译 rpm 包为 exclude，防止被 dnf 更新覆盖..." && \
-        echo "exclude=glibc* kwin* xorg-x11-server-Xwayland*" >> /etc/dnf/dnf.conf && \
+        echo "exclude=glibc glibc-common kwin* xorg-x11-server-Xwayland*" >> /etc/dnf/dnf.conf && \
         echo "--> [开启] 清理临时文件..." && \
         rm -rf /tmp/anland-build && \
         echo "--> [开启] anland_kde 支持已安装"; \
