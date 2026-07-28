@@ -17,6 +17,7 @@ ARG ENABLE_tmoe_ARG
 ARG ENABLE_anland_kde_ARG
 ARG ENABLE_8gen2_wayland_ARG
 ARG ENABLE_systemd257_ARG
+ARG TIMEZONE_ARG
 ARG USERNAME
 ######################################################
 
@@ -144,9 +145,17 @@ RUN ln -sf /usr/sbin/iptables-legacy /usr/sbin/iptables && \
     ln -sf /usr/sbin/ip6tables-legacy-save /usr/sbin/ip6tables-save && \
     ln -sf /usr/sbin/ip6tables-legacy-restore /usr/sbin/ip6tables-restore
 
-RUN if [ "$ENABLE_zh_tz_ARG" = "true" ]; then \
+RUN if [ -n "$TIMEZONE_ARG" ] && [ -f "/usr/share/zoneinfo/$TIMEZONE_ARG" ]; then \
+        ln -sf "/usr/share/zoneinfo/$TIMEZONE_ARG" /etc/localtime && \
+        echo "$TIMEZONE_ARG" > /etc/timezone; \
+    elif [ "$ENABLE_zh_tz_ARG" = "true" ]; then \
         ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-        echo "Asia/Shanghai" > /etc/timezone && \
+        echo "Asia/Shanghai" > /etc/timezone; \
+    else \
+        ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
+        echo "UTC" > /etc/timezone; \
+    fi && \
+    if [ "$ENABLE_zh_tz_ARG" = "true" ]; then \
         echo "LANG=zh_CN.UTF-8" > /etc/locale.conf && \
         echo "LC_ALL=zh_CN.UTF-8" >> /etc/locale.conf; \
     else \

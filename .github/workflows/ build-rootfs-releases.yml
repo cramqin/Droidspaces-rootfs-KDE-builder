@@ -52,8 +52,30 @@ on:
           - 'socket'
           - 'tcp'
           - 'none'
+      timezone:
+        description: '选择系统时区 (Select Timezone)'
+        required: true
+        type: choice
+        default: 'Asia/Shanghai'
+        options:
+          - 'Asia/Shanghai'
+          - 'Asia/Manila'
+          - 'Asia/Hong_Kong'
+          - 'Asia/Taipei'
+          - 'Asia/Tokyo'
+          - 'Asia/Singapore'
+          - 'Asia/Kolkata'
+          - 'Asia/Bangkok'
+          - 'UTC'
+          - 'Europe/London'
+          - 'Europe/Berlin'
+          - 'Europe/Paris'
+          - 'America/New_York'
+          - 'America/Chicago'
+          - 'America/Los_Angeles'
+          - 'Australia/Sydney'
       enable_zh_tz:
-        description: '使用 中文 语言，并更改时区'
+        description: '使用 中文 语言 (zh_CN.UTF-8)'
         required: true
         type: boolean
         default: true
@@ -316,6 +338,7 @@ jobs:
             -K "${{ inputs.build_KDE }}" \
             -L "${{ inputs.build_KDE_plus }}" \
             -P "${{ needs.setup.outputs.pulseaudio_effective }}" \
+            -z "${{ inputs.timezone }}" \
             -g "${{ inputs.enable_zh_tz }}" \
             -a "${{ inputs.enable_binfmt }}" \
             -b "${{ inputs.enable_yj }}" \
