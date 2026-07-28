@@ -15,7 +15,6 @@ ARG ENABLE_docker_ARG
 ARG ENABLE_srf_ARG
 ARG ENABLE_tmoe_ARG
 ARG ENABLE_systemd257_ARG
-ARG TIMEZONE_ARG
 ARG USERNAME
 ######################################################
 
@@ -90,17 +89,8 @@ RUN sed -i '/^#ParallelDownloads/s/^#//' /etc/pacman.conf && \
 
 # 配置 Locale 与 SSH
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
-    if [ -n "$TIMEZONE_ARG" ] && [ -f "/usr/share/zoneinfo/$TIMEZONE_ARG" ]; then \
-        ln -sf "/usr/share/zoneinfo/$TIMEZONE_ARG" /etc/localtime && \
-        echo "$TIMEZONE_ARG" > /etc/timezone; \
-    elif [ "$ENABLE_zh_tz_ARG" = "true" ]; then \
-        ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-        echo "Asia/Shanghai" > /etc/timezone; \
-    else \
-        ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
-        echo "UTC" > /etc/timezone; \
-    fi && \
     if [ "$ENABLE_zh_tz_ARG" = "true" ]; then \
+        ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
         echo "zh_CN.UTF-8 UTF-8" >> /etc/locale.gen && \
         locale-gen && \
         echo "LANG=zh_CN.UTF-8" > /etc/locale.conf && \
